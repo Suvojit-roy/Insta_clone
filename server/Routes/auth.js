@@ -37,28 +37,13 @@ router.post('/signup',(req,res)=>{
 
             user.save()
             .then(user=>{
-                res.json("saved")
+                res.json({message:"user saved"})
             })
             .catch(err=>{
                 console.log(err);
             })
         })
-        // bcrypt.hash(password,12)
-        // .then(hashedpassword=>{
-        //     const user=new User({
-        //         name,
-        //         email,
-        //         password:hashedpassword
-        //     })
-    
-        //     user.save()
-        //     .then(user=>{
-        //         res.json({message:"Saved User"})
-        //     })
-        //     .catch(err=>{
-        //         res.json({error:"Not saved"})
-        //     })
-        // })
+        {}
         
     })
     .catch(err=>{
@@ -83,7 +68,8 @@ router.post('/signin',(req,res)=>{
             if(doMatch){
                 // return res.json({message:"Sign in Successfull"})
                 const token=jwt.sign({_id:saveduser._id},JWT_SECRET)
-                res.json({token})
+                const {_id,name,email}=saveduser
+                res.json({token,user:{_id,name,email}})
             }
             else{
                 return res.json({error:"Invalid email or password"})

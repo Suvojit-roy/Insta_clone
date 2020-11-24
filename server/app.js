@@ -1,10 +1,11 @@
 const express=require('express')
 const mongoose=require('mongoose')
+const cors=require('cors')
 const app=express();
 const PORT=5000;
 const {MONGOURI}=require('./config/keys.js')
 
-
+// app.use(cors());
 
 mongoose.connect(MONGOURI,{ useUnifiedTopology: true ,useNewUrlParser: true})
 mongoose.connection.on('connected',()=>{
