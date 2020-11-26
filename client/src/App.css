@@ -27,6 +27,8 @@ a{
 
 .item{
   width: 30%;
+  /* height: fit-content; */
+  /* height: 30%; */
   /* margin */
 }
 
