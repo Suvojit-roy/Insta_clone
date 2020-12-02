@@ -3,39 +3,105 @@ import {UserContext} from '../../App'
 
 const Profile=()=>{
 
-    const [data,setData]=useState([])
-    const {state,dispatch}=useContext(UserContext)
+    const [mypics,setPics] = useState([])
+    const {state,dispatch} = useContext(UserContext)
+    const [image,setImage]=useState("")
+    // const [url,setUrl]=useState(null)
     useEffect(()=>{
-        fetch("/mypost",{
+        fetch('/mypost',{
             headers:{
                 "Authorization":"Bearer "+localStorage.getItem("jwt")
             }
         }).then(res=>res.json())
         .then(result=>{
-            console.log(result)
-            setData(result.mypost)
+            // console.log(result)
+            
+            setPics(result.mypost)
+            // console.log(state)
         })
-    },[])
+     },[])
+
+     useEffect(()=>{
+        if(image){
+        const data=new FormData()
+        data.append("file",image)
+        data.append("upload_preset","instagramhere")
+        data.append("cloud_name","roy123")
+
+        fetch("https://api.cloudinary.com/v1_1/roy123/image/upload",{
+            method:"post",
+            body:data
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            // console.log(data)
+            // setUrl(data.url)
+            // localStorage.setItem("user",JSON.stringify({...state,pic:data.url}))
+            // dispatch({type:"UPDATEPIC",payload:data.url})
+            fetch('/updatepic',{
+                method:"put",
+                headers:{
+                    "Authorization":"Bearer "+localStorage.getItem("jwt"),
+                    "content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    pic:data.url
+                })
+            }).then(res=>res.json())
+            .then(result=>{
+                console.log(result)
+                localStorage.setItem("user",JSON.stringify({...state,pic:result.pic}))
+                dispatch({type:"UPDATEPIC",payload:result.pic})
+                window.location.reload()
+            })
+
+            // window.location.reload()
+            
+        })
+        .catch(err=>{
+            console.log(err)
+        })
+        }
+     },[image])
+     
+     const updatephoto=(file)=>{
+        setImage(file)
+        
+     }
+    
     return(
         <>
         <div style={{maxWidth:"90%",margin:"0 auto"}}>
             <div  style={{display:"flex",justifyContent:"space-around",margin:"18px 0px",borderBottom:"1px solid grey"}}>
 
-                <div>
+                <div  style={{display:"flex",justifyContent:"space-around",flexDirection:"column"}}>
                     <img style={{width:"160px",height:"160px",borderRadius:"80px"}}
-                    src="https://images.unsplash.com/photo-1575224889663-4d96137aac12?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxzZWFyY2h8MTB8fHBlcnNvbnxlbnwwfDJ8MHw%3D&auto=format&fit=crop&w=600&q=60"/>
+                    src={state?state.pic:"loading"}/>
+                    
+                    <div className="file-field input-field">
+                        <div className="btn">
+                            <span>Update pic</span>
+                            <input type="file" onChange={(e)=>updatephoto(e.target.files[0])}/>
+                        </div>
+                        <div className="file-path-wrapper">
+                            <input className="file-path validate" type="text"/>
+                        </div>
+                    </div>
+                    
                 </div>
                 <div>
-                    <h4>{state?state.name:"loading"}</h4>
-                    <div style={{display:"flex",justifyContent:"space-between",width:"109%"}}>
-                        <h6>40 posts</h6>
-                        <h6>40 followers</h6>
-                        <h6>40 following</h6>
-                    </div>
-                </div>
+                   <h4>{state?state.name:"loading"}</h4>
+                   <h5>{state?state.email:"loading"}</h5>
+                   <div style={{display:"flex",justifyContent:"space-between",width:"108%"}}>
+                       <h6>{mypics.length} posts</h6>
+                       <h6>{state?state.followers.length:"0"} followers</h6>
+                       <h6>{state?state.following.length:"0"} following</h6>
+                   </div>
+
+               </div>
             </div>
             <div className="gallery">
-            {data.map(item=>{
+            {mypics.map(item=>{
                 return <img key={item._id} className="item card" src={item.photo} alt={item.title}/>
             })}
                 

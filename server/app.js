@@ -17,10 +17,12 @@ mongoose.connection.on('error',()=>{
 
 require('./Models/user')
 require('./Models/post')
+require('./Models/user')
  
 app.use(express.json())
 app.use(require('./Routes/auth'))
 app.use(require('./Routes/post'))
+app.use(require('./Routes/user'))
 
 
 
